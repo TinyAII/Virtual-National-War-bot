@@ -213,7 +213,9 @@ class VirtualNationPlugin(Star):
             result += f"成员数: {member_count}\n"
             result += f"成员列表: {', '.join(member_names)}\n"
             
-            yield event.plain_result(result.strip())
+            # 使用文转图功能
+            url = await self.text_to_image(result.strip())
+            yield event.image_result(url)
         except Exception as e:
             logger.error(f"查看国家状态失败: {e}")
             yield event.plain_result("查看国家状态失败，请稍后重试")
