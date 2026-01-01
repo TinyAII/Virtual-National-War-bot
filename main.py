@@ -467,13 +467,13 @@ class VirtualNationPlugin(Star):
         message_str = event.message_str.strip()
         
         # 解析参数
-        if len(message_str) < 3:  # "/晋升" 是2个字符，加上至少1个字符的参数
-            yield event.plain_result("请输入正确格式：/晋升<成员名或@用户> <职位>")
+        if len(message_str) < 4:  # "/晋升 " 是3个字符，加上至少1个字符的参数
+            yield event.plain_result("请输入正确格式：/晋升 <成员名或@用户> <职位>")
             return
         
-        params = message_str[2:].strip().split(" ", 1)
+        params = message_str[3:].strip().split(" ", 1)
         if len(params) < 2:
-            yield event.plain_result("请输入正确格式：/晋升<成员名或@用户> <职位>")
+            yield event.plain_result("请输入正确格式：/晋升 <成员名或@用户> <职位>")
             return
         
         target_member, position_name = params[0].strip(), params[1].strip()
@@ -500,22 +500,22 @@ class VirtualNationPlugin(Star):
             nation_id, nation_name = nation_info
             
             # 2. 查找目标成员的user_id
+            # 处理@用户格式，支持@用户名和@用户名(QQ号)两种格式
+            search_name = target_member
+            
+            # 如果是@开头，提取用户名部分
+            if target_member.startswith("@"):
+                search_name = target_member[1:]
+                # 移除可能的QQ号后缀，如 "用户名(123456)" -> "用户名"
+                if "(" in search_name:
+                    search_name = search_name.split("(")[0].strip()
+            
             # 先尝试通过用户名查找
             cursor.execute(
                 "SELECT user_id FROM user_nations WHERE nation_id = ? AND user_name = ?",
-                (nation_id, target_member)
+                (nation_id, search_name)
             )
             target_user = cursor.fetchone()
-            
-            # 如果没有找到，尝试解析@用户（这里简化处理，实际可能需要更复杂的解析）
-            if not target_user:
-                # 简单处理：如果target_member是@开头，去掉@符号后尝试作为用户名查找
-                if target_member.startswith("@"):
-                    cursor.execute(
-                        "SELECT user_id FROM user_nations WHERE nation_id = ? AND user_name = ?",
-                        (nation_id, target_member[1:])
-                    )
-                    target_user = cursor.fetchone()
             
             if not target_user:
                 yield event.plain_result(f"{target_member} 不是本国家成员，无法晋升")
@@ -561,11 +561,11 @@ class VirtualNationPlugin(Star):
         message_str = event.message_str.strip()
         
         # 解析参数
-        if len(message_str) < 3:  # "/撤职" 是2个字符，加上至少1个字符的参数
-            yield event.plain_result("请输入正确格式：/撤职<成员名或@用户>")
+        if len(message_str) < 4:  # "/撤职 " 是3个字符，加上至少1个字符的参数
+            yield event.plain_result("请输入正确格式：/撤职 <成员名或@用户>")
             return
         
-        target_member = message_str[2:].strip()
+        target_member = message_str[3:].strip()
         if not target_member:
             yield event.plain_result("成员名不能为空")
             return
@@ -589,21 +589,22 @@ class VirtualNationPlugin(Star):
             nation_id, nation_name = nation_info
             
             # 2. 查找目标成员的user_id
+            # 处理@用户格式，支持@用户名和@用户名(QQ号)两种格式
+            search_name = target_member
+            
+            # 如果是@开头，提取用户名部分
+            if target_member.startswith("@"):
+                search_name = target_member[1:]
+                # 移除可能的QQ号后缀，如 "用户名(123456)" -> "用户名"
+                if "(" in search_name:
+                    search_name = search_name.split("(")[0].strip()
+            
             # 先尝试通过用户名查找
             cursor.execute(
                 "SELECT user_id FROM user_nations WHERE nation_id = ? AND user_name = ?",
-                (nation_id, target_member)
+                (nation_id, search_name)
             )
             target_user = cursor.fetchone()
-            
-            # 如果没有找到，尝试解析@用户
-            if not target_user:
-                if target_member.startswith("@"):
-                    cursor.execute(
-                        "SELECT user_id FROM user_nations WHERE nation_id = ? AND user_name = ?",
-                        (nation_id, target_member[1:])
-                    )
-                    target_user = cursor.fetchone()
             
             if not target_user:
                 yield event.plain_result(f"{target_member} 不是本国家成员")
