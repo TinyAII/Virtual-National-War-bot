@@ -251,11 +251,56 @@ class VirtualNationPlugin(Star):
                 (nation_id,)
             )
             
-            conn.commit()
-            yield event.plain_result(f"你已成功退出国家 {nation_name}")
+            # 检查国家成员数量，如果为0则解散国家
+            cursor.execute("SELECT member_count FROM nations WHERE id = ?", (nation_id,))
+            member_count = cursor.fetchone()[0]
+            if member_count <= 0:
+                # 删除国家
+                cursor.execute("DELETE FROM nations WHERE id = ?", (nation_id,))
+                conn.commit()
+                yield event.plain_result(f"你已成功退出国家 {nation_name}，该国家因无成员已自动解散")
+            else:
+                conn.commit()
+                yield event.plain_result(f"你已成功退出国家 {nation_name}")
         except Exception as e:
             logger.error(f"退出国家失败: {e}")
             yield event.plain_result("退出国家失败，请稍后重试")
+        finally:
+            conn.close()
+    
+    @filter.command("解散国家")
+    async def dissolve_nation(self, event: AstrMessageEvent):
+        """解散自己创建的国家"""
+        user_id = event.get_sender_id()
+        
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        try:
+            # 检查用户是否加入了国家，且是国家创建者
+            cursor.execute(
+                "SELECT n.id, n.name FROM user_nations un JOIN nations n ON un.nation_id = n.id WHERE un.user_id = ? AND n.creator_id = ?",
+                (user_id, user_id)
+            )
+            nation_info = cursor.fetchone()
+            
+            if not nation_info:
+                yield event.plain_result("你不是任何国家的创建者，无法解散国家")
+                return
+            
+            nation_id, nation_name = nation_info
+            
+            # 删除所有用户国家关系
+            cursor.execute("DELETE FROM user_nations WHERE nation_id = ?", (nation_id,))
+            
+            # 删除国家
+            cursor.execute("DELETE FROM nations WHERE id = ?", (nation_id,))
+            
+            conn.commit()
+            yield event.plain_result(f"国家 {nation_name} 已成功解散")
+        except Exception as e:
+            logger.error(f"解散国家失败: {e}")
+            yield event.plain_result("解散国家失败，请稍后重试")
         finally:
             conn.close()
     
