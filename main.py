@@ -5,6 +5,92 @@ import httpx
 
 API_URL = "http://api.tinyaii.top/index.php"
 
+# 菜单样式的HTML模板
+MENU_TEMPLATE = '''
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文字斗气菜单</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.8;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        .menu-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #28a745;
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 15px;
+            background-color: #e8f5e8;
+            border-radius: 8px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .category-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #17a2b8;
+            margin: 30px 0 20px 0;
+            padding: 10px 0;
+            border-bottom: 3px solid #17a2b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .menu-item {
+            font-size: 18px;
+            line-height: 2.0;
+            margin: 15px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+        }
+        .command-name {
+            font-weight: bold;
+            color: #dc3545;
+            font-size: 20px;
+            margin-right: 15px;
+        }
+        .command-desc {
+            color: #495057;
+        }
+        .note-section {
+            margin-top: 40px;
+            padding: 15px;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            border-radius: 6px;
+            color: #856404;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="menu-title">📚 文字斗气指令列表 📚</h1>
+        {{content}}
+        <div class="note-section">
+            💡 输入指令前不需要加斜杠，直接输入指令即可！
+        </div>
+    </div>
+</body>
+</html>
+'''
+
 @register("literary_battle_qi", "author", "文字斗气机器人插件", "1.0.0")
 class LiteraryBattleQiBot(Star):
     def __init__(self, context: Context):
@@ -35,26 +121,89 @@ class LiteraryBattleQiBot(Star):
         
         return message
     
+    async def text_to_image_menu_style(self, text: str) -> str:
+        """使用菜单样式的HTML模板生成图片"""
+        try:
+            # 将文本内容转换为结构化HTML
+            lines = text.split('\n')
+            html_parts = []
+            
+            # 处理指令列表
+            for line in lines:
+                line = line.strip()
+                if not line or line.startswith('📚') or line.startswith('💡'):
+                    continue
+                
+                # 解析指令行
+                if ' - ' in line:
+                    command_part, desc_part = line.split(' - ', 1)
+                    # 提取指令名称（去除🔹 **和**）
+                    command_name = command_part.replace('🔹 **', '').replace('**', '').strip()
+                    command_desc = desc_part.strip()
+                    
+                    # 生成HTML
+                    html_parts.append(f'<div class="menu-item">')
+                    html_parts.append(f'<span class="command-name">{command_name}</span>')
+                    html_parts.append(f'<span class="command-desc">{command_desc}</span>')
+                    html_parts.append(f'</div>')
+            
+            # 组装最终HTML内容
+            formatted_html = '\n'.join(html_parts)
+            
+            # 渲染HTML模板
+            html_content = MENU_TEMPLATE.replace("{{content}}", formatted_html)
+            
+            # 使用html_render函数生成图片
+            options = {
+                "full_page": True,
+                "type": "jpeg",
+                "quality": 95,
+            }
+            
+            # 调用AstrBot的html_render方法
+            image_url = await self.context.html_render(
+                html_content,  # 渲染后的HTML内容
+                {},  # 空数据字典
+                True,  # 返回URL
+                options  # 图片生成选项
+            )
+            
+            return image_url
+        except Exception as e:
+            logger.error(f"菜单样式图片生成失败：{e}")
+            # 回退到默认的纯文本输出
+            return None
+    
     @filter.command("斗气帮助", alias={"帮助", "斗气指令"})
     async def help(self, event: AstrMessageEvent):
         """查看所有指令说明"""
-        help_text = """📚 文字斗气指令列表：
-
-🔹 **斗气帮助** - 查看所有指令说明
-🔹 **创建角色** - 创建斗气角色（格式：创建角色 123456）
-🔹 **状态** - 查看自己的斗气状态
-🔹 **个人信息** - 查看详细角色信息
-🔹 **打坐** - 基础修炼获得斗气（冷却10分钟）
-🔹 **突破** - 消耗斗气突破境界
-🔹 **调息** - 恢复生命和灵力（冷却30分钟）
-🔹 **闭关** - 深度修炼获得更多斗气（冷却2小时）
-🔹 **排行榜** - 查看斗气排行榜
-🔹 **道友** - 查看好友/道友列表
-🔹 **切磋** - 与道友切磋（格式：切磋 @456789）
-🔹 **赠送** - 赠送物品给道友（格式：赠送 @456789 灵石x10）
-
-💡 输入指令前不需要加斜杠，直接输入指令即可！"""
-        yield event.plain_result(help_text)
+        help_text = ("📚 文字斗气指令列表：\n" +
+                     "\n" +
+                     "🔹 **斗气帮助**   - 查看所有指令说明\n" +
+                     "🔹 **创建角色**   - 创建斗气角色（格式：创建角色 123456）\n" +
+                     "🔹 **状态**       - 查看自己的斗气状态\n" +
+                     "🔹 **个人信息**   - 查看详细角色信息\n" +
+                     "🔹 **打坐**       - 基础修炼获得斗气（冷却10分钟）\n" +
+                     "🔹 **突破**       - 消耗斗气突破境界\n" +
+                     "🔹 **调息**       - 恢复生命和灵力（冷却30分钟）\n" +
+                     "🔹 **闭关**       - 深度修炼获得更多斗气（冷却2小时）\n" +
+                     "🔹 **排行榜**     - 查看斗气排行榜\n" +
+                     "🔹 **道友**       - 查看好友/道友列表\n" +
+                     "🔹 **切磋**       - 与道友切磋（格式：切磋 @456789）\n" +
+                     "🔹 **赠送**       - 赠送物品给道友（格式：赠送 @456789 灵石x10）\n" +
+                     "\n" +
+                     "💡 输入指令前不需要加斜杠，直接输入指令即可！")
+        
+        # 尝试生成图片
+        image_url = await self.text_to_image_menu_style(help_text)
+        
+        if image_url:
+            # 如果生成图片成功，发送图片
+            from astrbot.api.message_components import Image
+            yield event.chain_result([Image.fromURL(image_url)])
+        else:
+            # 否则发送纯文本
+            yield event.plain_result(help_text)
     
     @filter.command("创建角色", alias={"注册", "开始斗气"})
     async def create_character(self, event: AstrMessageEvent, username: str = None):
