@@ -427,6 +427,270 @@ PERSONAL_INFO_TEMPLATE = '''
 </html>
 '''
 
+# 状态命令的HTML模板
+STATUS_TEMPLATE = '''
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>斗气状态</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            margin: 0;
+            padding: 30px;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+        }
+        .title {
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .username {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e74c3c;
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+        .info-item {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .info-item:hover {
+            transform: translateY(-5px);
+        }
+        .info-label {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .info-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #7f8c8d;
+            font-size: 14px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">🌟 斗气状态 🌟</h1>
+        <div class="username">{{username}}</div>
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">等级</div>
+                <div class="info-value">{{level}}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">修为</div>
+                <div class="info-value">{{cultivation}}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">境界</div>
+                <div class="info-value">{{realm}}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">经验</div>
+                <div class="info-value">{{experience}}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">斗气值</div>
+                <div class="info-value">{{battle_qi}}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">生命值</div>
+                <div class="info-value">{{health}}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">灵力值</div>
+                <div class="info-value">{{mana}}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">体力值</div>
+                <div class="info-value">{{stamina}}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">金币</div>
+                <div class="info-value">{{gold}}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">灵石</div>
+                <div class="info-value">{{spirit_stone}}</div>
+            </div>
+        </div>
+        <div class="footer">
+            查询时间：{{current_time}} | 文字斗气系统
+        </div>
+    </div>
+</body>
+</html>
+'''
+
+# 排行榜命令的HTML模板
+RANKING_TEMPLATE = '''
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>斗气排行榜</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            margin: 0;
+            padding: 30px;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+        }
+        .title {
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .update-time {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        .rank-item {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            margin: 15px 0;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .rank-item:hover {
+            transform: translateX(10px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+        .rank-number {
+            font-size: 24px;
+            font-weight: bold;
+            width: 50px;
+            text-align: center;
+            margin-right: 20px;
+            color: #e74c3c;
+        }
+        .rank-number.gold {
+            color: #f39c12;
+            font-size: 30px;
+        }
+        .rank-number.silver {
+            color: #95a5a6;
+        }
+        .rank-number.bronze {
+            color: #e67e22;
+        }
+        .player-info {
+            flex: 1;
+        }
+        .player-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        .player-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        .stat-item {
+            display: flex;
+            align-items: center;
+        }
+        .stat-label {
+            margin-right: 5px;
+        }
+        .stat-value {
+            font-weight: bold;
+            color: #3498db;
+        }
+        .empty-rank {
+            text-align: center;
+            color: #95a5a6;
+            font-style: italic;
+            padding: 40px;
+            font-size: 18px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #7f8c8d;
+            font-size: 14px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">📊 斗气排行榜 📊</h1>
+        <div class="update-time">更新时间：{{update_time}}</div>
+        <div class="rankings">
+            {{rankings_content}}
+        </div>
+        <div class="footer">
+            查询时间：{{current_time}} | 文字斗气系统
+        </div>
+    </div>
+</body>
+</html>
+'''
+
 @register("literary_battle_qi", "author", "文字斗气机器人插件", "1.0.0")
 class LiteraryBattleQiBot(Star):
     def __init__(self, context):
@@ -592,6 +856,125 @@ class LiteraryBattleQiBot(Star):
             # 回退到默认的纯文本输出
             return None
     
+    async def render_status_image(self, data):
+        """使用状态模板生成图片"""
+        try:
+            # 格式化当前时间
+            from datetime import datetime
+            current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            # 替换模板变量
+            html_content = STATUS_TEMPLATE
+            html_content = html_content.replace("{{username}}", data.get('用户名', ''))
+            html_content = html_content.replace("{{level}}", str(data.get('等级', 0)))
+            html_content = html_content.replace("{{cultivation}}", str(data.get('修为', 0)))
+            html_content = html_content.replace("{{realm}}", data.get('境界', ''))
+            html_content = html_content.replace("{{experience}}", str(data.get('经验', 0)))
+            html_content = html_content.replace("{{battle_qi}}", str(data.get('斗气值', 0)))
+            html_content = html_content.replace("{{health}}", str(data.get('生命值', 0)))
+            html_content = html_content.replace("{{mana}}", str(data.get('灵力值', 0)))
+            html_content = html_content.replace("{{stamina}}", str(data.get('体力值', 0)))
+            html_content = html_content.replace("{{gold}}", str(data.get('金币', 0)))
+            html_content = html_content.replace("{{spirit_stone}}", str(data.get('灵石', 0)))
+            html_content = html_content.replace("{{current_time}}", current_time)
+            
+            # 使用html_render函数生成图片
+            options = {
+                "full_page": True,
+                "type": "jpeg",
+                "quality": 95,
+            }
+            
+            # 调用AstrBot的html_render方法
+            image_url = await self.html_render(
+                html_content,  # 渲染后的HTML内容
+                {},  # 空数据字典
+                True,  # 返回URL
+                options  # 图片生成选项
+            )
+            
+            return image_url
+        except Exception as e:
+            logger.error(f"状态图片生成失败：{e}")
+            # 回退到默认的纯文本输出
+            return None
+    
+    async def render_ranking_image(self, data):
+        """使用排行榜模板生成图片"""
+        try:
+            # 提取数据
+            ranking_list = data.get("排行榜", [])
+            update_time = data.get("更新时间", "")
+            
+            # 格式化当前时间
+            from datetime import datetime
+            current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            # 生成排行榜内容
+            ranking_html = []
+            if ranking_list:
+                for rank, player in enumerate(ranking_list, 1):
+                    # 确定排名样式
+                    rank_class = ""
+                    if rank == 1:
+                        rank_class = " gold"
+                    elif rank == 2:
+                        rank_class = " silver"
+                    elif rank == 3:
+                        rank_class = " bronze"
+                    
+                    ranking_html.append(f'<div class="rank-item">')
+                    ranking_html.append(f'    <div class="rank-number{rank_class}">{rank}</div>')
+                    ranking_html.append(f'    <div class="player-info">')
+                    ranking_html.append(f'        <div class="player-name">{player.get("用户名", "")}</div>')
+                    ranking_html.append(f'        <div class="player-stats">')
+                    ranking_html.append(f'            <div class="stat-item">')
+                    ranking_html.append(f'                <span class="stat-label">境界：</span>')
+                    ranking_html.append(f'                <span class="stat-value">{player.get("境界", "")}</span>')
+                    ranking_html.append(f'            </div>')
+                    ranking_html.append(f'            <div class="stat-item">')
+                    ranking_html.append(f'                <span class="stat-label">修为：</span>')
+                    ranking_html.append(f'                <span class="stat-value">{player.get("修为值", 0)}</span>')
+                    ranking_html.append(f'            </div>')
+                    ranking_html.append(f'            <div class="stat-item">')
+                    ranking_html.append(f'                <span class="stat-label">等级：</span>')
+                    ranking_html.append(f'                <span class="stat-value">{player.get("等级", 0)}</span>')
+                    ranking_html.append(f'            </div>')
+                    ranking_html.append(f'        </div>')
+                    ranking_html.append(f'    </div>')
+                    ranking_html.append(f'</div>')
+            else:
+                ranking_html.append('<div class="empty-rank">排行榜为空！</div>')
+            
+            rankings_content = '\n'.join(ranking_html)
+            
+            # 替换模板变量
+            html_content = RANKING_TEMPLATE
+            html_content = html_content.replace("{{update_time}}", update_time)
+            html_content = html_content.replace("{{rankings_content}}", rankings_content)
+            html_content = html_content.replace("{{current_time}}", current_time)
+            
+            # 使用html_render函数生成图片
+            options = {
+                "full_page": True,
+                "type": "jpeg",
+                "quality": 95,
+            }
+            
+            # 调用AstrBot的html_render方法
+            image_url = await self.html_render(
+                html_content,  # 渲染后的HTML内容
+                {},  # 空数据字典
+                True,  # 返回URL
+                options  # 图片生成选项
+            )
+            
+            return image_url
+        except Exception as e:
+            logger.error(f"排行榜图片生成失败：{e}")
+            # 回退到默认的纯文本输出
+            return None
+    
     @filter.command("斗气帮助", alias={"帮助", "斗气指令"})
     async def help(self, event):
         """查看所有指令说明"""
@@ -643,7 +1026,16 @@ class LiteraryBattleQiBot(Star):
             return
         
         data = response.get("data", {})
-        status_text = f"""🌟 {data.get('用户名')} 的状态信息：
+        
+        # 尝试生成图片
+        image_url = await self.render_status_image(data)
+        
+        if image_url:
+            # 如果生成图片成功，发送图片
+            yield event.image_result(image_url).use_t2i(False)
+        else:
+            # 否则发送纯文本
+            status_text = f"""🌟 {data.get('用户名')} 的状态信息：
 
 📊 等级：{data.get('等级')}
 🛡️ 修为：{data.get('修为')}
@@ -656,7 +1048,7 @@ class LiteraryBattleQiBot(Star):
 💰 金币：{data.get('金币')}
 💎 灵石：{data.get('灵石')}
 """
-        yield event.plain_result(status_text)
+            yield event.plain_result(status_text)
     
     @filter.command("个人信息", alias={"信息", "我的信息"})
     async def personal_info(self, event):
@@ -843,22 +1235,31 @@ class LiteraryBattleQiBot(Star):
             return
         
         data = response.get("data", {})
-        ranking_list = data.get("排行榜", [])
-        update_time = data.get("更新时间")
         
-        if not ranking_list:
-            yield event.plain_result("📊 排行榜为空！")
-            return
+        # 尝试生成图片
+        image_url = await self.render_ranking_image(data)
         
-        ranking_text = "📊 斗气排行榜\n\n"
-        for i, player in enumerate(ranking_list, 1):
-            ranking_text += f"🏆 第{i}名：{player.get('用户名')}\n"
-            ranking_text += f"   境界：{player.get('境界')}\n"
-            ranking_text += f"   修为值：{player.get('修为值')}\n"
-            ranking_text += f"   等级：{player.get('等级')}\n\n"
-        
-        ranking_text += f"⏰ 更新时间：{update_time}"
-        yield event.plain_result(ranking_text)
+        if image_url:
+            # 如果生成图片成功，发送图片
+            yield event.image_result(image_url).use_t2i(False)
+        else:
+            # 否则发送纯文本
+            ranking_list = data.get("排行榜", [])
+            update_time = data.get("更新时间")
+            
+            if not ranking_list:
+                yield event.plain_result("📊 排行榜为空！")
+                return
+            
+            ranking_text = "📊 斗气排行榜\n\n"
+            for i, player in enumerate(ranking_list, 1):
+                ranking_text += f"🏆 第{i}名：{player.get('用户名')}\n"
+                ranking_text += f"   境界：{player.get('境界')}\n"
+                ranking_text += f"   修为值：{player.get('修为值')}\n"
+                ranking_text += f"   等级：{player.get('等级')}\n\n"
+            
+            ranking_text += f"⏰ 更新时间：{update_time}"
+            yield event.plain_result(ranking_text)
     
     @filter.command("道友", alias={"好友", "道友列表"})
     async def friends(self, event):
