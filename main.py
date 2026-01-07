@@ -207,17 +207,18 @@ class LiteraryBattleQiBot(Star):
         """查看所有指令说明"""
         help_text = (
                      "🔹 **斗气帮助**   - 查看所有指令说明\n" +
-                     "🔹 **创建角色**   - 创建斗气角色（格式：创建角色 123456）\n" +
+                     "🔹 **创建角色**   - 创建斗气角色（自动使用你的QQ号，无需额外参数）\n" +
                      "🔹 **状态**       - 查看自己的斗气状态\n" +
                      "🔹 **个人信息**   - 查看详细角色信息\n" +
                      "🔹 **打坐**       - 基础修炼获得斗气（冷却10分钟）\n" +
                      "🔹 **突破**       - 消耗斗气突破境界\n" +
                      "🔹 **调息**       - 恢复生命和灵力（冷却30分钟）\n" +
-                     "🔹 **闭关**       - 深度修炼获得更多斗气（冷却2小时）\n" +
+                     "🔹 **闭关**       - 深度修炼获得更多斗气（格式：闭关 [时长]，冷却2小时）\n" +
                      "🔹 **排行榜**     - 查看斗气排行榜\n" +
                      "🔹 **道友**       - 查看好友/道友列表\n" +
-                     "🔹 **切磋**       - 与道友切磋（格式：切磋 123456 @456789）\n" +
-                     "🔹 **赠送**       - 赠送物品给道友（格式：赠送 123456 @456789 灵石x10）\n"
+                     "🔹 **切磋**       - 与道友切磋（格式：切磋 @目标QQ号）\n" +
+                     "🔹 **赠送**       - 赠送物品给道友（格式：赠送 @目标QQ号 物品x数量）\n" +
+                     ""
                      )
         
         # 尝试生成图片
@@ -233,20 +234,8 @@ class LiteraryBattleQiBot(Star):
     @filter.command("创建角色", alias={"注册", "开始斗气"})
     async def create_character(self, event):
         """创建斗气角色"""
-        msg = event.message_str.replace("创建角色", "").replace("注册", "").replace("开始斗气", "").strip()
-        if not msg:
-            yield event.plain_result("❌ 请输入用户名！格式：创建角色 123456")
-            return
-        
-        username = msg.strip()
-        # 检查用户名格式
-        if not username.isdigit():
-            yield event.plain_result("❌ 用户名只能是纯数字！")
-            return
-        
-        if len(username) > 12:
-            yield event.plain_result("❌ 用户名长度不能超过12位！")
-            return
+        # 自动获取用户的QQ号作为用户名
+        username = str(event.message_obj.sender.user_id)
         
         response = await self._call_api("创建角色", {"username": username})
         yield event.plain_result(self._format_response(response))
@@ -254,12 +243,9 @@ class LiteraryBattleQiBot(Star):
     @filter.command("状态", alias={"我的状态", "查看状态"})
     async def status(self, event):
         """查看自己的斗气状态"""
-        msg = event.message_str.replace("状态", "").replace("我的状态", "").replace("查看状态", "").strip()
-        if not msg:
-            yield event.plain_result("❌ 请输入用户名！格式：状态 123456")
-            return
+        # 自动获取用户的QQ号作为用户名
+        username = str(event.message_obj.sender.user_id)
         
-        username = msg.strip()
         response = await self._call_api("状态", {"username": username})
         
         if response.get("code") != 200:
@@ -285,12 +271,9 @@ class LiteraryBattleQiBot(Star):
     @filter.command("个人信息", alias={"信息", "我的信息"})
     async def personal_info(self, event):
         """查看详细角色信息"""
-        msg = event.message_str.replace("个人信息", "").replace("信息", "").replace("我的信息", "").strip()
-        if not msg:
-            yield event.plain_result("❌ 请输入用户名！格式：个人信息 123456")
-            return
+        # 自动获取用户的QQ号作为用户名
+        username = str(event.message_obj.sender.user_id)
         
-        username = msg.strip()
         response = await self._call_api("个人信息", {"username": username})
         
         if response.get("code") != 200:
@@ -362,12 +345,9 @@ class LiteraryBattleQiBot(Star):
     @filter.command("打坐", alias={"修炼", "冥想"})
     async def meditate(self, event):
         """基础修炼获得斗气，每次获得20斗气"""
-        msg = event.message_str.replace("打坐", "").replace("修炼", "").replace("冥想", "").strip()
-        if not msg:
-            yield event.plain_result("❌ 请输入用户名！格式：打坐 123456")
-            return
+        # 自动获取用户的QQ号作为用户名
+        username = str(event.message_obj.sender.user_id)
         
-        username = msg.strip()
         response = await self._call_api("打坐", {"username": username})
         
         if response.get("code") != 200:
@@ -388,12 +368,9 @@ class LiteraryBattleQiBot(Star):
     @filter.command("突破", alias={"升级", "进阶"})
     async def breakthrough(self, event):
         """消耗斗气突破境界，有成功率"""
-        msg = event.message_str.replace("突破", "").replace("升级", "").replace("进阶", "").strip()
-        if not msg:
-            yield event.plain_result("❌ 请输入用户名！格式：突破 123456")
-            return
+        # 自动获取用户的QQ号作为用户名
+        username = str(event.message_obj.sender.user_id)
         
-        username = msg.strip()
         response = await self._call_api("突破", {"username": username})
         
         if response.get("code") != 200:
@@ -415,26 +392,24 @@ class LiteraryBattleQiBot(Star):
     @filter.command("调息", alias={"恢复", "休息"})
     async def recover(self, event):
         """恢复生命和灵力"""
-        msg = event.message_str.replace("调息", "").replace("恢复", "").replace("休息", "").strip()
-        if not msg:
-            yield event.plain_result("❌ 请输入用户名！格式：调息 123456")
-            return
+        # 自动获取用户的QQ号作为用户名
+        username = str(event.message_obj.sender.user_id)
         
-        username = msg.strip()
         response = await self._call_api("调息", {"username": username})
         yield event.plain_result(self._format_response(response))
     
     @filter.command("闭关", alias={"深度修炼"})
     async def seclusion(self, event):
         """长时间修炼获得更多斗气，每分钟1斗气"""
-        msg = event.message_str.replace("闭关", "").replace("深度修炼", "").strip()
-        if not msg:
-            yield event.plain_result("❌ 请输入用户名！格式：闭关 123456")
-            return
+        # 自动获取用户的QQ号作为用户名
+        username = str(event.message_obj.sender.user_id)
         
-        parts = msg.split()
-        username = parts[0]
-        duration = parts[1] if len(parts) > 1 else None
+        # 解析可选的时长参数
+        msg = event.message_str.replace("闭关", "").replace("深度修炼", "").strip()
+        duration = None
+        if msg:
+            # 只取第一个参数作为时长
+            duration = msg.split()[0]
         
         params = {"username": username}
         if duration:
@@ -489,12 +464,9 @@ class LiteraryBattleQiBot(Star):
     @filter.command("道友", alias={"好友", "道友列表"})
     async def friends(self, event):
         """查看好友/道友"""
-        msg = event.message_str.replace("道友", "").replace("好友", "").replace("道友列表", "").strip()
-        if not msg:
-            yield event.plain_result("❌ 请输入用户名！格式：道友 123456")
-            return
+        # 自动获取用户的QQ号作为用户名
+        username = str(event.message_obj.sender.user_id)
         
-        username = msg.strip()
         response = await self._call_api("道友", {"username": username})
         
         if response.get("code") != 200:
@@ -517,14 +489,16 @@ class LiteraryBattleQiBot(Star):
     @filter.command("切磋", alias={"比试", "挑战"})
     async def duel(self, event):
         """与道友切磋"""
+        # 自动获取用户的QQ号作为用户名
+        username = str(event.message_obj.sender.user_id)
+        
         msg = event.message_str.replace("切磋", "").replace("比试", "").replace("挑战", "").strip()
         parts = msg.split()
-        if len(parts) < 2:
-            yield event.plain_result("❌ 请输入完整参数！格式：切磋 123456 @456789")
+        if len(parts) < 1:
+            yield event.plain_result("❌ 请输入完整参数！格式：切磋 @456789")
             return
         
-        username = parts[0]
-        target = parts[1]
+        target = parts[0]
         
         # 检查target格式
         if not target.startswith("@"):
@@ -567,15 +541,17 @@ class LiteraryBattleQiBot(Star):
     @filter.command("赠送", alias={"送礼", "给予"})
     async def give(self, event):
         """赠送物品给道友"""
+        # 自动获取用户的QQ号作为用户名
+        username = str(event.message_obj.sender.user_id)
+        
         msg = event.message_str.replace("赠送", "").replace("送礼", "").replace("给予", "").strip()
         parts = msg.split()
-        if len(parts) < 3:
-            yield event.plain_result("❌ 请输入完整参数！格式：赠送 123456 @456789 灵石x10")
+        if len(parts) < 2:
+            yield event.plain_result("❌ 请输入完整参数！格式：赠送 @456789 灵石x10")
             return
         
-        username = parts[0]
-        target = parts[1]
-        item = " ".join(parts[2:])
+        target = parts[0]
+        item = " ".join(parts[1:])
         
         # 检查target格式
         if not target.startswith("@"):
